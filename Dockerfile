@@ -3,4 +3,4 @@
 ARG NODE_VERSION=22
 
 # 2. 使用该变量来指定基础镜像的版本
-FROM node:${PYTHON_VERSION}-slim
+FROM node:${NODE_VERSION}-slim
