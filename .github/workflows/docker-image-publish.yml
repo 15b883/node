@@ -1,0 +1,41 @@
+name: Docker Build Multi-Version
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        # 定义你想构建的版本
+        python-version: ["3.13", "3.14"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          # 这里将 matrix 的值传给 Dockerfile 中的 ARG
+          build-args: |
+            PYTHON_VERSION=${{ matrix.python-version }}
+          push: true
+          # 自动根据版本号生成 Tag
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ matrix.python-version }}
+            ghcr.io/${{ github.repository }}:latest-${{ matrix.python-version }}
